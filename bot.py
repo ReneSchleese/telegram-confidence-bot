@@ -20,28 +20,26 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
 MESSAGES = [
-    "loyal",
-    "ein all-rounder",
-    "realistisch",
-    "kreativ",
-    "emotional intelligent"
-    "integer"
-    "selbstreflektiert"
-    "ausbalanciert"
-    "ehrlich"
-    "lebensfroh"
-    "rücksichtsvoll"
-    "menschlich"
-    "respektvoll"
-    "selbstständig"
-    "engagiert"
-    "begeistert"
-    "entspannt"
-    "aufrichtig"
-    "flexibel"
-    "vertrauenswürdig"
-    "unabhängig"
-    "ausgeglichen"
+    "loyal 🛡️",
+    "realistisch 🎯",
+    "kreativ 🎨",
+    "emotional intelligent 💗"
+    "integer ♜"
+    "selbstreflektiert 🧠️"
+    "ausbalanciert ⚖️"
+    "ehrlich 🗪"
+    "lebensfroh 😊"
+    "rücksichtsvoll 🧑‍🤝‍🧑"
+    "menschlich 🧍‍♂️"
+    "respektvoll 🫡"
+    "selbstständig 🐯"
+    "engagiert 🧑‍🏭"
+    "begeistert 🤩"
+    "entspannt 😌"
+    "aufrichtig 🧑‍⚖️"
+    "flexibel 🎭"
+    "unabhängig 🐺"
+    "ausgeglichen 🧘‍♂️"
 ]
 
 SEND_TIME_UTC = time(hour=9, minute=0)
