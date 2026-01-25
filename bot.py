@@ -4,14 +4,9 @@ import asyncio
 from datetime import datetime
 from telegram import Bot
 
-# --- Configuration ---
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
-# Set TEST_MODE=True to send messages every minute for testing
-TEST_MODE = True  # <-- switch to False for production daily schedule
-
-# Messages to choose from
 MESSAGES = [
     "loyal",
     "ein all-rounder",
@@ -37,50 +32,40 @@ MESSAGES = [
     "ausgeglichen"
 ]
 
-# Helper function to log with timestamp and flush
-def log(msg: str):
+SEND_TIME_UTC = dtime(hour=9, minute=0)  # 09:00 UTC daily
+
+def log(msg):
     print(f"{datetime.utcnow()} - {msg}", flush=True)
 
-# Create bot instance
 bot = Bot(token=BOT_TOKEN)
 
-# Async function to send a Telegram message
 async def send_message():
-    message = f"Du bist {random.choice(MESSAGES)}"
-    try:
-        await bot.send_message(chat_id=CHAT_ID, text=message)
-        log(f"Message sent: {message}")
-    except Exception as e:
-        log(f"Error sending message: {e}")
+    msg = random.choice(MESSAGES)
+    await bot.send_message(chat_id=CHAT_ID, text=msg)
+    log(f"Message sent: {msg}")
 
-# Async function for periodic health ping
-async def health_ping():
-    log("Bot alive, waiting for next scheduled message...")
+def seconds_until_next_run():
+    now = datetime.utcnow()
+    today_run = datetime.combine(now.date(), SEND_TIME_UTC)
 
-# Scheduler loop
-async def scheduler_loop():
+    if now < today_run:
+        next_run = today_run
+    else:
+        next_run = today_run + timedelta(days=1)
+
+    return (next_run - now).total_seconds(), next_run
+
+async def scheduler():
+    log("Bot started")
+
     while True:
-        now = datetime.utcnow()
-        if TEST_MODE:
-            # Send every minute
-            await send_message()
-            await health_ping()
-            await asyncio.sleep(60)  # wait 1 minute
-        else:
-            # Production: send daily at 09:00 UTC
-            if now.hour == 9 and now.minute == 0:
-                await send_message()
-            await health_ping()
-            await asyncio.sleep(30)  # check every 30 seconds
+        seconds, next_run = seconds_until_next_run()
+        log(f"Next message scheduled at {next_run} UTC")
+        await asyncio.sleep(seconds)
+        await send_message()
 
-# --- Entry point ---
 async def main():
-    log("Bot started!")
-    await scheduler_loop()
+    await scheduler()
 
-# Run the async main loop
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        log("Bot stopped manually.")
+    asyncio.run(main())
