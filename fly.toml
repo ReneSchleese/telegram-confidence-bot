@@ -1,0 +1,18 @@
+# fly.toml app configuration file generated for confidence-telegram-bot on 2026-01-22T21:49:15+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'confidence-telegram-bot'
+primary_region = 'fra'
+
+[build]
+
+[[services]]
+  internal_port = 0
+  protocol = "tcp"
+
+[[vm]]
+  memory = '256mb'
+  cpus = 1
+  memory_mb = 256
