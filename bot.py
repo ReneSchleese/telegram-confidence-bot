@@ -1,9 +1,10 @@
+import asyncio
 import os
 import random
-import asyncio
 from datetime import datetime, timedelta, time
+from zoneinfo import ZoneInfo
 from telegram import Bot
-import random
+
 
 class MessageBag:
     def __init__(self, messages):
@@ -15,6 +16,7 @@ class MessageBag:
             self.bag = self.messages.copy()
             random.shuffle(self.bag)
         return self.bag.pop()
+
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
@@ -42,29 +44,39 @@ MESSAGES = [
     "ausgeglichen 🧘‍♂️"
 ]
 
-SEND_TIME_UTC = time(hour=9, minute=0)
 message_bag = MessageBag(MESSAGES)
+bot = Bot(token=BOT_TOKEN)
+LOCAL_TZ = ZoneInfo("Europe/Berlin")
+
 
 def log(msg):
     print(f"{datetime.utcnow()} - {msg}", flush=True)
 
-bot = Bot(token=BOT_TOKEN)
 
 async def send_message():
     message = f"Du bist {message_bag.next()}"
     await bot.send_message(chat_id=CHAT_ID, text=message)
     log(f"Message sent: {message}")
 
+
 def seconds_until_next_run():
-    now = datetime.utcnow()
-    today_run = datetime.combine(now.date(), SEND_TIME_UTC)
+    now_utc = datetime.now(tz=ZoneInfo("UTC"))
+    now_local = now_utc.astimezone(LOCAL_TZ)
 
-    if now < today_run:
-        next_run = today_run
+    today_run_local = datetime.combine(
+        now_local.date(),
+        time(hour=9, minute=0),
+        tzinfo=LOCAL_TZ
+    )
+    if now_local < today_run_local:
+        next_run_local = today_run_local
     else:
-        next_run = today_run + timedelta(days=1)
+        next_run_local = today_run_local + timedelta(days=1)
 
-    return (next_run - now).total_seconds(), next_run
+    next_run_utc = next_run_local.astimezone(ZoneInfo("UTC"))
+    seconds = (next_run_utc - now_utc).total_seconds()
+    return seconds, next_run_local
+
 
 async def scheduler():
     log("Bot started")
@@ -75,8 +87,10 @@ async def scheduler():
         await asyncio.sleep(seconds)
         await send_message()
 
+
 async def main():
     await scheduler()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
