@@ -1,8 +1,20 @@
 import os
 import random
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta, time
 from telegram import Bot
+import random
+
+class MessageBag:
+    def __init__(self, messages):
+        self.messages = list(messages)
+        self.bag = []
+
+    def next(self):
+        if not self.bag:
+            self.bag = self.messages.copy()
+            random.shuffle(self.bag)
+        return self.bag.pop()
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
@@ -32,7 +44,8 @@ MESSAGES = [
     "ausgeglichen"
 ]
 
-SEND_TIME_UTC = dtime(hour=9, minute=0)  # 09:00 UTC daily
+SEND_TIME_UTC = time(hour=9, minute=0)
+message_bag = MessageBag(MESSAGES)
 
 def log(msg):
     print(f"{datetime.utcnow()} - {msg}", flush=True)
@@ -40,9 +53,9 @@ def log(msg):
 bot = Bot(token=BOT_TOKEN)
 
 async def send_message():
-    msg = random.choice(MESSAGES)
-    await bot.send_message(chat_id=CHAT_ID, text=msg)
-    log(f"Message sent: {msg}")
+    message = message_bag.next()
+    await bot.send_message(chat_id=CHAT_ID, text=message)
+    log(f"Message sent: {message}")
 
 def seconds_until_next_run():
     now = datetime.utcnow()
