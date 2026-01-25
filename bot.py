@@ -53,7 +53,7 @@ def log(msg):
 bot = Bot(token=BOT_TOKEN)
 
 async def send_message():
-    message = message_bag.next()
+    message = f"Du bist {message_bag.next()}"
     await bot.send_message(chat_id=CHAT_ID, text=message)
     log(f"Message sent: {message}")
 
