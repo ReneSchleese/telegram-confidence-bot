@@ -25,28 +25,29 @@ MESSAGES = [
     "loyal 🛡️",
     "realistisch 🎯",
     "kreativ 🎨",
-    "emotional intelligent 💗"
-    "integer ♜"
-    "selbstreflektiert 🧠️"
-    "ausbalanciert ⚖️"
-    "ehrlich 🗪"
-    "lebensfroh 😊"
-    "rücksichtsvoll 🧑‍🤝‍🧑"
-    "menschlich 🧍‍♂️"
-    "respektvoll 🫡"
-    "selbstständig 🐯"
-    "engagiert 🧑‍🏭"
-    "begeistert 🤩"
-    "entspannt 😌"
-    "aufrichtig 🧑‍⚖️"
-    "flexibel 🎭"
-    "unabhängig 🐺"
+    "emotional intelligent 💗",
+    "integer ♜",
+    "selbstreflektiert 🧠️",
+    "ausbalanciert ⚖️",
+    "ehrlich 🗪",
+    "lebensfroh 😊",
+    "rücksichtsvoll 🧑‍🤝‍🧑",
+    "menschlich 🧍‍♂️",
+    "respektvoll 🫡",
+    "selbstständig 🐯",
+    "engagiert 🧑‍🏭",
+    "begeistert 🤩",
+    "entspannt 😌",
+    "aufrichtig 🧑‍⚖️",
+    "flexibel 🎭",
+    "unabhängig 🐺",
     "ausgeglichen 🧘‍♂️"
 ]
 
 message_bag = MessageBag(MESSAGES)
 bot = Bot(token=BOT_TOKEN)
 LOCAL_TZ = ZoneInfo("Europe/Berlin")
+last_sent_date = None
 
 
 def log(msg):
@@ -54,9 +55,16 @@ def log(msg):
 
 
 async def send_message():
+    global last_sent_date
+    today = datetime.now(LOCAL_TZ).date()
+
+    if last_sent_date == today:
+        log("Message already sent today, skipping")
+        return
+
+    last_sent_date = today
     message = f"Du bist {message_bag.next()}"
     await bot.send_message(chat_id=CHAT_ID, text=message)
-    log(f"Message sent: {message}")
 
 
 def seconds_until_next_run():
@@ -80,12 +88,15 @@ def seconds_until_next_run():
 
 async def scheduler():
     log("Bot started")
+    seconds, next_run = seconds_until_next_run()
+    log(f"First message scheduled at {next_run}")
+    await asyncio.sleep(seconds)
 
     while True:
-        seconds, next_run = seconds_until_next_run()
-        log(f"Next message scheduled at {next_run} UTC")
-        await asyncio.sleep(seconds)
         await send_message()
+        seconds, next_run = seconds_until_next_run()
+        log(f"Next message scheduled at {next_run}")
+        await asyncio.sleep(seconds)
 
 
 async def main():
