@@ -29,7 +29,7 @@ MESSAGES = [
     "integer ♜",
     "selbstreflektiert 🧠️",
     "ausbalanciert ⚖️",
-    "ehrlich 🗪",
+    "ehrlich 💬",
     "lebensfroh 😊",
     "rücksichtsvoll 🧑‍🤝‍🧑",
     "menschlich 🧍‍♂️",
